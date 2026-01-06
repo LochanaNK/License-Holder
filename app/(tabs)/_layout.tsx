@@ -1,35 +1,52 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import {FontAwesome,FontAwesome5} from '@expo/vector-icons';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
 
   return (
     <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+    screenOptions={{
+      tabBarStyle:{
+        borderTopWidth:0,
+      },
+      tabBarActiveTintColor:'#0ea5e9',
+      tabBarInactiveTintColor:'#57534e',
+      tabBarLabelStyle:{
+        fontSize:14,
+        fontWeight:'semibold',
+      },
+      headerTintColor:'#57534e',
+      headerTitleStyle: {
+      fontWeight: 'bold',
+      fontSize: 24,
+    },
+    }}>
       <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
+      name="index"
+      options={{
+        title: 'Home',
+        tabBarIcon:({color,focused})=>(
+            <FontAwesome name="home" size={24} color={focused ? '#0ea5e9' : '#57534e'}/>
+        )
+      }}
       />
       <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
+      name='allLicenses'
+      options={{
+        title:'Licenses',
+        tabBarIcon:({color,focused})=>(
+          <FontAwesome name="drivers-license" size={20} color={focused ? '#0ea5e9' : '#57534e'}/>
+        )
+      }}
       />
+      <Tabs.Screen
+      name='allInsuarances'
+      options={{
+        title:'Insurances',
+        tabBarIcon:({color,focused})=>(
+          <FontAwesome5 name="shield-alt" size={20} color={focused ? '#0ea5e9' : '#57534e'}/>
+        )
+      }}/>
     </Tabs>
   );
 }
