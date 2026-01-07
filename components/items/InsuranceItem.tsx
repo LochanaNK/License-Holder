@@ -1,17 +1,17 @@
 import {View,Text,TouchableOpacity} from 'react-native'
 import { FontAwesome6 } from '@expo/vector-icons';
 
-interface LicenseItemProps{
+interface InsuranceItemProps{
     item:{
         holderName:string,
         vehicleNo:string,
-        vehicleClass:string,
+        companyName:string,
         expiryDate:string
     };
     onDelete: ()=>void;
 }
 
-export const LicenseItem = ({item,onDelete}:LicenseItemProps)=>{
+export const InsuranceItem = ({item,onDelete}:InsuranceItemProps)=>{
     return(
         <View className='bg-white p-5 mt-15 mb-4 rounded-3xl shadow-sm border border-slate-100 flex-row items-center justify-between'>
             <View className='flex-1'>
@@ -19,10 +19,10 @@ export const LicenseItem = ({item,onDelete}:LicenseItemProps)=>{
                     {item.holderName}
                 </Text>
                 <Text className='text-lg font-bold text-slate-800 mb-1'>
-                    {item.vehicleNo}
+                    Vehicle No: {item.vehicleNo}
                 </Text>
                 <Text className='text-lg font-bold text-slate-800 mb-1'>
-                    {item.vehicleClass}
+                    {item.companyName}
                 </Text>
                 <View className='flex-row items-center mt-3'>
                     <View className='bg-red-50 px-2 py-1 rounded-md flex-row items-center'>

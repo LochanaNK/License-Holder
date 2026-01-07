@@ -24,8 +24,8 @@ export const AddInsuranceModal = ({
 }: AddInsuranceModalProps) => {
   const [formData, setFormData] = useState({
     holderName: "",
+    companyName:'',
     vehicleNo: "",
-    issuedDate: "",
     expiryDate: "",
   });
 
@@ -44,8 +44,8 @@ export const AddInsuranceModal = ({
 
     setFormData({
       holderName: "",
+      companyName:'',
       vehicleNo: "",
-      issuedDate: "",
       expiryDate: "",
     });
     onClose();
@@ -83,16 +83,16 @@ export const AddInsuranceModal = ({
                 />
                 <TextInput
                   className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                  placeholder="Vehicle No"
-                  value={formData.vehicleNo}
-                  onChangeText={(val) => handleChange("vehicleNo", val)}
+                  placeholder="Company Name"
+                  value={formData.companyName}
+                  onChangeText={(val) => handleChange("companyName", val)}
                   onSubmitEditing={handleAdd}
                 />
                 <TextInput
                   className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                  placeholder="Issued Date"
-                  value={formData.issuedDate}
-                  onChangeText={(val) => handleChange("issuedDate", val)}
+                  placeholder="Vehicle No"
+                  value={formData.vehicleNo}
+                  onChangeText={(val) => handleChange("vehicleNo", val)}
                   onSubmitEditing={handleAdd}
                 />
                 <TextInput

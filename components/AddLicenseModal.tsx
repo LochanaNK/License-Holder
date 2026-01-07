@@ -21,7 +21,7 @@ export const AddLicenseModal = ({ isVisible, onClose, onAdd }: AddLicenseModalPr
     const [formData, setFormData] = useState({
         holderName:'',
         vehicleNo:'',
-        issuedDate:'',
+        vehicleClass:'',
         expiryDate:''
     });
 
@@ -41,7 +41,7 @@ export const AddLicenseModal = ({ isVisible, onClose, onAdd }: AddLicenseModalPr
         setFormData({
             holderName:'',
             vehicleNo:'',
-            issuedDate:'',
+            vehicleClass:'',
             expiryDate:'',
         });
         onClose();
@@ -86,9 +86,9 @@ export const AddLicenseModal = ({ isVisible, onClose, onAdd }: AddLicenseModalPr
                                 />
                                 <TextInput
                                     className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                                    placeholder="Issued Date"
-                                    value={formData.issuedDate}
-                                    onChangeText={(val)=>handleChange('issuedDate',val)}
+                                    placeholder="Vehicle Class"
+                                    value={formData.vehicleClass}
+                                    onChangeText={(val)=>handleChange('vehicleClass',val)}
                                     onSubmitEditing={handleAdd}
                                 />
                                 <TextInput

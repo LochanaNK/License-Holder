@@ -1,23 +1,35 @@
+import { initDatabase } from "@/util/database";
+import { LicenseController } from "@/controllers/LicenseController";
+
 import { AddLicenseModal } from "@/components/AddLicenseModal";
 import { LicenseItem } from "@/components/items/LicenseItem";
 import { FontAwesome6 } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Text, TouchableOpacity, View, FlatList } from "react-native";
 
 export default function Licenses() {
   const [modalVisible, setModalVisible] = useState(false);
   const [entries, setEntries] = useState<any[]>([]);
 
-  const handleAdd = (data: any) => {
-    console.log("New Entry:", data);
-    setEntries(prevEntries=>[
-        ...prevEntries,
-        {...data,id:Date.now().toString()}
-    ])
+  const loadData=()=>{
+    const data = LicenseController.getAll();
+    setEntries(data);
+  }
+
+  useEffect(()=>{
+    initDatabase();
+    loadData();
+  },[]);
+
+  const handleAdd = (formData: any) => {
+    console.log("New Entry:", formData);
+    LicenseController.create(formData);
+    loadData();
     setModalVisible(false);
   };
-  const handleDelete = (id: string) => {
-    setEntries((prevEntries) => prevEntries.filter((entry) => entry.id !== id));
+  const handleDelete = (id: number) => {
+    const success = LicenseController.remove(id);
+    if(success)loadData();
   };
 
   return (
