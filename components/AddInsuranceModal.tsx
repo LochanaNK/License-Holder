@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { FontAwesome6 } from "@expo/vector-icons";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import {
   View,
   ScrollView,
@@ -22,9 +26,24 @@ export const AddInsuranceModal = ({
   onClose,
   onAdd,
 }: AddInsuranceModalProps) => {
+  const [showPicker, setShowPicker] = useState(false);
+  const [date, setDate] = useState(new Date());
+
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    if (Platform.OS === "android") {
+      setShowPicker(false);
+    }
+
+    if (selectedDate) {
+      setDate(selectedDate);
+      const formattedDate = selectedDate.toISOString().split("T")[0];
+      handleChange("expiryDate", formattedDate);
+    }
+  };
+
   const [formData, setFormData] = useState({
     holderName: "",
-    companyName:'',
+    companyName: "",
     vehicleNo: "",
     expiryDate: "",
   });
@@ -44,7 +63,7 @@ export const AddInsuranceModal = ({
 
     setFormData({
       holderName: "",
-      companyName:'',
+      companyName: "",
       vehicleNo: "",
       expiryDate: "",
     });
@@ -95,13 +114,32 @@ export const AddInsuranceModal = ({
                   onChangeText={(val) => handleChange("vehicleNo", val)}
                   onSubmitEditing={handleAdd}
                 />
-                <TextInput
-                  className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                  placeholder="Expiration Date"
-                  value={formData.expiryDate}
-                  onChangeText={(val) => handleChange("expiryDate", val)}
-                  onSubmitEditing={handleAdd}
-                />
+                <Text className="text-slate-500 mb-1 ml-1">
+                  Expiration Date
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowPicker(true)}
+                  className="bg-slate-100 p-4 rounded-2xl border border-slate-200 mb-3 flex-row justify-between items-center"
+                >
+                  <Text className="text-lg text-slate-800">
+                    {formData.expiryDate || "Select Date"}
+                  </Text>
+                  <FontAwesome6
+                    name="calendar-days"
+                    size={20}
+                    color="#64748b"
+                  />
+                </TouchableOpacity>
+
+                {showPicker && (
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    onChange={onDateChange}
+                    minimumDate={new Date()} 
+                  />
+                )}
               </ScrollView>
 
               <TouchableOpacity
