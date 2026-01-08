@@ -72,13 +72,13 @@ export const AddLicenseModal = ({
 
   return (
     <Modal
-      animationType="fade"
+      animationType="slide"
       transparent={true}
       visible={isVisible}
       onRequestClose={onClose}
     >
       <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-white p-6 rounded-t-3xl h-1/2">
+        <View className="bg-white p-6 rounded-t-3xl max-h-[55%]">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-2xl font-bold text-slate-800">New Entry</Text>
             <TouchableOpacity onPress={onClose}>
@@ -89,66 +89,67 @@ export const AddLicenseModal = ({
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === "ios" ? 110 : 0}
-            className="flex-1"
+            className="shrink"
           >
-            <View className="flex-1 justify-between">
-              <ScrollView>
-                <TextInput
-                  className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                  placeholder="License Holder's name"
-                  value={formData.holderName}
-                  onChangeText={(val) => handleChange("holderName", val)}
-                  onSubmitEditing={handleAdd}
-                />
-                <TextInput
-                  className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                  placeholder="Vehicle No"
-                  value={formData.vehicleNo}
-                  onChangeText={(val) => handleChange("vehicleNo", val)}
-                  onSubmitEditing={handleAdd}
-                />
-                <TextInput
-                  className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                  placeholder="Vehicle Class"
-                  value={formData.vehicleClass}
-                  onChangeText={(val) => handleChange("vehicleClass", val)}
-                  onSubmitEditing={handleAdd}
-                />
+            <ScrollView
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={{
+                flexGrow: 1,
+                paddingBottom: Platform.OS === "android" ? 150 : 40,
+              }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <TextInput
+                className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
+                placeholder="License Holder's name"
+                placeholderTextColor={"#1e293b"}
+                value={formData.holderName}
+                onChangeText={(val) => handleChange("holderName", val)}
+                onSubmitEditing={handleAdd}
+              />
+              <TextInput
+                className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
+                placeholder="Vehicle No"
+                placeholderTextColor={"#1e293b"}
+                value={formData.vehicleNo}
+                onChangeText={(val) => handleChange("vehicleNo", val)}
+                onSubmitEditing={handleAdd}
+              />
+              <TextInput
+                className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
+                placeholder="Vehicle Class"
+                placeholderTextColor={"#1e293b"}
+                value={formData.vehicleClass}
+                onChangeText={(val) => handleChange("vehicleClass", val)}
+                onSubmitEditing={handleAdd}
+              />
 
-                <Text className="text-slate-500 mb-1 ml-1">
-                  Expiration Date
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setShowPicker(true)}
-                  className="bg-slate-100 p-4 rounded-2xl border border-slate-200 mb-3 flex-row justify-between items-center"
-                >
-                  <Text className="text-lg text-slate-800">
-                    {formData.expiryDate || "Select Date"}
-                  </Text>
-                  <FontAwesome6
-                    name="calendar-days"
-                    size={20}
-                    color="#64748b"
-                  />
-                </TouchableOpacity>
-                {showPicker && (
-                  <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={onDateChange}
-                    minimumDate={new Date()}
-                  />
-                )}
-              </ScrollView>
-
+              <Text className="text-slate-500 mb-1 ml-1">Expiration Date</Text>
               <TouchableOpacity
-                onPress={handleAdd}
-                className="bg-sky-500 p-4 rounded-2xl items-center mb-4"
+                onPress={() => setShowPicker(true)}
+                className="bg-slate-100 p-4 rounded-2xl border border-slate-200 mb-3 flex-row justify-between items-center"
               >
-                <Text className="text-white text-lg font-bold">Add Entry</Text>
+                <Text className="text-lg text-slate-800">
+                  {formData.expiryDate || "Select Date"}
+                </Text>
+                <FontAwesome6 name="calendar-days" size={20} color="#64748b" />
               </TouchableOpacity>
-            </View>
+              {showPicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={onDateChange}
+                  minimumDate={new Date()}
+                />
+              )}
+            </ScrollView>
+            <TouchableOpacity
+              onPress={handleAdd}
+              className="bg-sky-500 p-4 rounded-2xl items-center mb-4"
+            >
+              <Text className="text-white text-lg font-bold">Add Entry</Text>
+            </TouchableOpacity>
           </KeyboardAvoidingView>
         </View>
       </View>
