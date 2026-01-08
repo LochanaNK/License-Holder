@@ -46,7 +46,7 @@ export default function Insuarances() {
           <View className="items-center mt-20">
             <FontAwesome6 name="folder-open" size={50} color="#cbd5e1" />
             <Text className="text-slate-400 mt-4 text-lg font-medium">
-              No Licenses added
+              No Insurances added
             </Text>
           </View>
         )}

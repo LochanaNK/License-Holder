@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { FontAwesome6 } from "@expo/vector-icons";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import {
   View,
   ScrollView,
@@ -22,9 +26,24 @@ export const AddInsuranceModal = ({
   onClose,
   onAdd,
 }: AddInsuranceModalProps) => {
+  const [showPicker, setShowPicker] = useState(false);
+  const [date, setDate] = useState(new Date());
+
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    if (Platform.OS === "android") {
+      setShowPicker(false);
+    }
+
+    if (selectedDate) {
+      setDate(selectedDate);
+      const formattedDate = selectedDate.toISOString().split("T")[0];
+      handleChange("expiryDate", formattedDate);
+    }
+  };
+
   const [formData, setFormData] = useState({
     holderName: "",
-    companyName:'',
+    companyName: "",
     vehicleNo: "",
     expiryDate: "",
   });
@@ -44,7 +63,7 @@ export const AddInsuranceModal = ({
 
     setFormData({
       holderName: "",
-      companyName:'',
+      companyName: "",
       vehicleNo: "",
       expiryDate: "",
     });
@@ -59,7 +78,7 @@ export const AddInsuranceModal = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-white p-6 rounded-t-3xl h-1/2">
+        <View className="bg-white p-6 rounded-t-3xl max-h-[55%]">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-2xl font-bold text-slate-800">New Entry</Text>
             <TouchableOpacity onPress={onClose}>
@@ -70,13 +89,21 @@ export const AddInsuranceModal = ({
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === "ios" ? 110 : 0}
-            className="flex-1"
+            className="shrink"
           >
-            <View className="flex-1 justify-between">
-              <ScrollView>
+            
+              <ScrollView
+                showsVerticalScrollIndicator={true}
+                contentContainerStyle={{
+                  flexGrow: 1,
+                  paddingBottom: Platform.OS === "android" ? 150 : 40,
+                }}
+                keyboardShouldPersistTaps="handled"
+              >
                 <TextInput
                   className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
                   placeholder="Insurance Holder's name"
+                  placeholderTextColor={"#1e293b"}
                   value={formData.holderName}
                   onChangeText={(val) => handleChange("holderName", val)}
                   onSubmitEditing={handleAdd}
@@ -84,6 +111,7 @@ export const AddInsuranceModal = ({
                 <TextInput
                   className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
                   placeholder="Company Name"
+                  placeholderTextColor={"#1e293b"}
                   value={formData.companyName}
                   onChangeText={(val) => handleChange("companyName", val)}
                   onSubmitEditing={handleAdd}
@@ -91,17 +119,37 @@ export const AddInsuranceModal = ({
                 <TextInput
                   className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
                   placeholder="Vehicle No"
+                  placeholderTextColor={"#1e293b"}
                   value={formData.vehicleNo}
                   onChangeText={(val) => handleChange("vehicleNo", val)}
                   onSubmitEditing={handleAdd}
                 />
-                <TextInput
-                  className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                  placeholder="Expiration Date"
-                  value={formData.expiryDate}
-                  onChangeText={(val) => handleChange("expiryDate", val)}
-                  onSubmitEditing={handleAdd}
-                />
+                <Text className="text-slate-500 mb-1 ml-1">
+                  Expiration Date
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowPicker(true)}
+                  className="bg-slate-100 p-4 rounded-2xl border border-slate-200 mb-3 flex-row justify-between items-center"
+                >
+                  <Text className="text-lg text-slate-800">
+                    {formData.expiryDate || "Select Date"}
+                  </Text>
+                  <FontAwesome6
+                    name="calendar-days"
+                    size={20}
+                    color="#64748b"
+                  />
+                </TouchableOpacity>
+
+                {showPicker && (
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    onChange={onDateChange}
+                    minimumDate={new Date()}
+                  />
+                )}
               </ScrollView>
 
               <TouchableOpacity
@@ -110,7 +158,7 @@ export const AddInsuranceModal = ({
               >
                 <Text className="text-white text-lg font-bold">Add Entry</Text>
               </TouchableOpacity>
-            </View>
+            
           </KeyboardAvoidingView>
         </View>
       </View>
