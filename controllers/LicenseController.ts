@@ -10,7 +10,7 @@ export const LicenseController ={
         }
     },
 
-    create:(data:any)=>{
+    create:(data:any):number | null=>{
         try{
             const result = database.runSync(
                 'INSERT INTO licenses (holderName,vehicleNo,vehicleClass,expiryDate) VALUES(?,?,?,?)',
@@ -19,6 +19,7 @@ export const LicenseController ={
         }catch(error){
             console.error('Failed to create license:',error);
         }
+        return null;
     },
     remove:(id:number)=>{
         try{
