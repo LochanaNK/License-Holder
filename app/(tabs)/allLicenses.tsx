@@ -6,6 +6,7 @@ import { LicenseItem } from "@/components/items/LicenseItem";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useState,useEffect } from "react";
 import { Text, TouchableOpacity, View, FlatList } from "react-native";
+import { NotificationService } from "@/services/NotificationService";
 
 export default function Licenses() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -19,13 +20,18 @@ export default function Licenses() {
   useEffect(()=>{
     initDatabase();
     loadData();
+    NotificationService.setup();
   },[]);
 
-  const handleAdd = (formData: any) => {
+  const handleAdd =async (formData: any) => {
     console.log("New Entry:", formData);
-    LicenseController.create(formData);
-    loadData();
-    setModalVisible(false);
+    try{
+      LicenseController.create(formData);
+      loadData();
+      setModalVisible(false);
+    }catch(error){
+      console.error("Add Error:",error);
+    }
   };
   const handleDelete = (id: number) => {
     const success = LicenseController.remove(id);

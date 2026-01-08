@@ -15,6 +15,8 @@ import {
 } from "react-native";
 import { Fontisto } from "@expo/vector-icons";
 
+import { NotificationService } from "@/services/NotificationService";
+
 interface AddLicenseModalProps {
   isVisible: boolean;
   onClose: () => void;
@@ -36,7 +38,13 @@ export const AddLicenseModal = ({
 
     if (selectedDate) {
       setDate(selectedDate);
-      const formattedDate = selectedDate.toISOString().split("T")[0];
+
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+      const day = String(selectedDate.getDate()).padStart(2, "0");
+
+      const formattedDate = `${year}-${month}-${day}`;
+
       handleChange("expiryDate", formattedDate);
     }
   };
@@ -55,7 +63,7 @@ export const AddLicenseModal = ({
     }));
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.holderName || !formData.vehicleNo) {
       return;
     }
@@ -67,6 +75,11 @@ export const AddLicenseModal = ({
       vehicleClass: "",
       expiryDate: "",
     });
+    await NotificationService.scheduleExpiryNotification(
+      formData.holderName,
+      formData.expiryDate,
+      "License"
+    );
     onClose();
   };
 
