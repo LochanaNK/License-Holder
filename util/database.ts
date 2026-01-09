@@ -22,7 +22,7 @@ export const initDatabase = ()=>{
 
             CREATE TABLE IF NOT EXISTS emissionTest(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                testerName TEXT NOT NULL,
+                companyName TEXT NOT NULL,
                 vehicleNo TEXT,
                 vehicleClass TEXT,
                 expiryDate TEXT

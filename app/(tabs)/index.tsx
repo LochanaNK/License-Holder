@@ -1,41 +1,65 @@
 import { initDatabase } from "@/util/database";
 import { EmissionTestController } from "@/controllers/EmissionTestController";
 
-import { AddEmissionTestModal } from "@/components/AddEmissionTestModal";
-import {EmissionTestItem} from '@/components/items/EmissionTestItem';
+import { EntryModal } from "@/components/EntryModal";
+import { DisplayItem } from "@/components/items/DisplayItem";
 import { FontAwesome6 } from "@expo/vector-icons";
-import { useState,useEffect } from "react";
-import { Text, TouchableOpacity, View, FlatList } from "react-native";
+import { useState, useEffect } from "react";
+import { Text, TouchableOpacity, View, FlatList, Alert } from "react-native";
 import { NotificationService } from "@/services/NotificationService";
 
 export default function Licenses() {
   const [modalVisible, setModalVisible] = useState(false);
   const [entries, setEntries] = useState<any[]>([]);
+  const [selectedEmissionTest, setSelectedEmissionTest] = useState<any | null>(
+    null
+  );
 
-  const loadData=()=>{
+  const loadData = () => {
     const data = EmissionTestController.getAll();
     setEntries(data);
-  }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     initDatabase();
     loadData();
     NotificationService.setup();
-  },[]);
+  }, []);
 
-  const handleAdd =async (formData: any) => {
-    console.log("New Entry:", formData);
-    try{
-      EmissionTestController.create(formData);
-      loadData();
-      setModalVisible(false);
-    }catch(error){
-      console.error("Add Error:",error);
+  const handleSave = async (formData: any) => {
+    const isUpdate = !!formData.id;
+    let id = formData.id;
+
+    if (isUpdate) {
+      console.log("LOG: Updating existing ID:", id, formData);
+
+      await NotificationService.cancelNotificationsForId(id, "License");
+
+      await EmissionTestController.update(id, formData);
+    } else {
+      console.log("LOG: Creating brand new entry", formData);
+      id = await EmissionTestController.create(formData);
     }
+    loadData();
+    setModalVisible(false);
+    setSelectedEmissionTest(null);
+    return id;
   };
   const handleDelete = (id: number) => {
-    const success = EmissionTestController.remove(id);
-    if(success)loadData();
+    Alert.alert("Delete", "Are you sure?", [
+      { text: "Cancel" },
+      {
+        text: "Delete",
+        onPress: async () => {
+          EmissionTestController.remove(id);
+
+          // CLEANUP: Cancel scheduled notifications for this ID
+          await NotificationService.cancelNotificationsForId(id, "Insurance");
+
+          loadData();
+        },
+      },
+    ]);
   };
 
   return (
@@ -45,7 +69,15 @@ export default function Licenses() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
-          <EmissionTestItem item={item} onDelete={() => handleDelete(item.id)} />
+          <DisplayItem
+            item={item}
+            onEdit={(item) => {
+              setSelectedEmissionTest(item);
+              setModalVisible(true);
+            }}
+            onDelete={() => handleDelete(item.id)}
+            type="Emission"
+          />
         )}
         ListEmptyComponent={() => (
           <View className="items-center mt-20">
@@ -64,10 +96,12 @@ export default function Licenses() {
         <FontAwesome6 name="add" size={24} color="white" />
         <Text className="text-xl font-semibold text-white">Add</Text>
       </TouchableOpacity>
-      <AddEmissionTestModal
+      <EntryModal
         isVisible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onAdd={handleAdd}
+        onSave={handleSave}
+        type="Emission"
+        initialData={selectedEmissionTest}
       />
     </View>
   );

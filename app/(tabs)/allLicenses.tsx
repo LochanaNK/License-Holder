@@ -1,41 +1,65 @@
 import { initDatabase } from "@/util/database";
 import { LicenseController } from "@/controllers/LicenseController";
 
-import { AddLicenseModal } from "@/components/AddLicenseModal";
-import { LicenseItem } from "@/components/items/LicenseItem";
+import { EntryModal } from "@/components/EntryModal";
+import { DisplayItem } from "@/components/items/DisplayItem";
 import { FontAwesome6 } from "@expo/vector-icons";
-import { useState,useEffect } from "react";
-import { Text, TouchableOpacity, View, FlatList } from "react-native";
+import { useState, useEffect } from "react";
+import { Text, TouchableOpacity, View, FlatList, Alert } from "react-native";
 import { NotificationService } from "@/services/NotificationService";
 
 export default function Licenses() {
   const [modalVisible, setModalVisible] = useState(false);
   const [entries, setEntries] = useState<any[]>([]);
+  const [selectedLicense, setSelectedLicense] = useState<any | null>(null);
 
-  const loadData=()=>{
+  const loadData = () => {
     const data = LicenseController.getAll();
     setEntries(data);
-  }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     initDatabase();
     loadData();
     NotificationService.setup();
-  },[]);
+  }, []);
 
-  const handleAdd =async (formData: any) => {
-    console.log("New Entry:", formData);
-    try{
-      LicenseController.create(formData);
-      loadData();
-      setModalVisible(false);
-    }catch(error){
-      console.error("Add Error:",error);
+  const handleSave = async (formData: any) => {
+
+    const isUpdate = !!formData.id;
+    let id = formData.id;
+
+    if (isUpdate) {
+      console.log("LOG: Updating existing ID:", id,formData);
+
+      await NotificationService.cancelNotificationsForId(id,'License');
+
+      await LicenseController.update(id, formData);
+      
+    } else {
+      console.log("LOG: Creating brand new entry",formData);
+      id =await LicenseController.create(formData);
     }
+    loadData();
+    setModalVisible(false);
+    setSelectedLicense(null);
+    return id;
   };
   const handleDelete = (id: number) => {
-    const success = LicenseController.remove(id);
-    if(success)loadData();
+    Alert.alert("Delete", "Are you sure?", [
+      { text: "Cancel" },
+      {
+        text: "Delete",
+        onPress: async () => {
+          LicenseController.remove(id);
+
+          // CLEANUP: Cancel scheduled notifications for this ID
+          await NotificationService.cancelNotificationsForId(id, "Insurance");
+
+          loadData();
+        },
+      },
+    ]);
   };
 
   return (
@@ -45,7 +69,15 @@ export default function Licenses() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
-          <LicenseItem item={item} onDelete={() => handleDelete(item.id)} />
+          <DisplayItem
+            item={item}
+            onEdit={(item) => {
+              setSelectedLicense(item);
+              setModalVisible(true);
+            }}
+            onDelete={() => handleDelete(item.id)}
+            type="License"
+          />
         )}
         ListEmptyComponent={() => (
           <View className="items-center mt-20">
@@ -64,10 +96,12 @@ export default function Licenses() {
         <FontAwesome6 name="add" size={24} color="white" />
         <Text className="text-xl font-semibold text-white">Add</Text>
       </TouchableOpacity>
-      <AddLicenseModal
+      <EntryModal
         isVisible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onAdd={handleAdd}
+        onSave={handleSave}
+        type="License"
+        initialData={selectedLicense}
       />
     </View>
   );

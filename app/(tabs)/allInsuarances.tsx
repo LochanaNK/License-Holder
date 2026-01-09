@@ -1,15 +1,17 @@
 import { initDatabase } from "@/util/database";
 import { InsuranceController } from "@/controllers/InsuranceController";
+import { NotificationService } from "@/services/NotificationService";
 
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
-import { AddInsuranceModal } from "@/components/AddInsuranceModal";
-import { InsuranceItem } from "@/components/items/InsuranceItem";
+import { View, Text, TouchableOpacity, FlatList, Alert } from "react-native";
+import { EntryModal } from "@/components/EntryModal";
+import { DisplayItem } from "@/components/items/DisplayItem";
 import { FontAwesome6 } from "@expo/vector-icons";
 
 export default function Insuarances() {
   const [modalVisible, setModalVisible] = useState(false);
   const [entries, setEntries] = useState<any[]>([]);
+  const [selectedInsurance, setSelectedInsurance] = useState<any | null>(null);
 
   const loadData = () => {
     const data = InsuranceController.getAll();
@@ -21,16 +23,41 @@ export default function Insuarances() {
     loadData();
   }, []);
 
-  const handleAdd = (formData: any) => {
-    console.log("New Entry:", formData);
-    InsuranceController.create(formData);
+  const handleSave = async (formData: any) => {
+    const isUpdate = !!formData.id;
+    let id = formData.id;
+
+    if (isUpdate) {
+      console.log("LOG: Updating existing ID:", id, formData);
+
+      await NotificationService.cancelNotificationsForId(id, "License");
+
+      await InsuranceController.update(id, formData);
+    } else {
+      console.log("LOG: Creating brand new entry", formData);
+      id = await InsuranceController.create(formData);
+    }
     loadData();
+    setSelectedInsurance(null);
     setModalVisible(false);
+    return id;
   };
 
   const handleDelete = (id: number) => {
-    const success = InsuranceController.remove(id);
-    if(success)loadData();
+    Alert.alert("Delete", "Are you sure?", [
+      { text: "Cancel" },
+      {
+        text: "Delete",
+        onPress: async () => {
+          InsuranceController.remove(id);
+
+          // CLEANUP: Cancel scheduled notifications for this ID
+          await NotificationService.cancelNotificationsForId(id, "Insurance");
+
+          loadData();
+        },
+      },
+    ]);
   };
 
   return (
@@ -40,7 +67,15 @@ export default function Insuarances() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
-          <InsuranceItem item={item} onDelete={() => handleDelete(item.id)} />
+          <DisplayItem
+            item={item}
+            onEdit={(item) => {
+              setSelectedInsurance(item);
+              setModalVisible(true);
+            }}
+            onDelete={() => handleDelete(item.id)}
+            type="Insurance"
+          />
         )}
         ListEmptyComponent={() => (
           <View className="items-center mt-20">
@@ -52,17 +87,25 @@ export default function Insuarances() {
         )}
       />
       <TouchableOpacity
-        onPress={() => setModalVisible(true)}
+        onPress={() => {
+          setSelectedInsurance(null);
+          setModalVisible(true);
+        }}
         activeOpacity={0.8}
         className="absolute bottom-2 right-2 flex-row items-center gap-2 bg-sky-500 p-4 rounded-xl shadow-lg elevation-5"
       >
         <FontAwesome6 name="add" size={24} color="white" />
         <Text className="text-xl font-semibold text-white">Add</Text>
       </TouchableOpacity>
-      <AddInsuranceModal
+      <EntryModal
         isVisible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onAdd={handleAdd}
+        onClose={() => {
+          setSelectedInsurance(null);
+          setModalVisible(false);
+        }}
+        onSave={handleSave}
+        type="Insurance"
+        initialData={selectedInsurance}
       />
     </View>
   );
