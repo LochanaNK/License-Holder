@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-type EntryType = 'License' | 'Insurance';
+type EntryType = 'License' | 'Insurance' | 'Emission';
 
 export const NotificationService = {
     setup: async () => {
