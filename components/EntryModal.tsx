@@ -123,7 +123,7 @@ export const EntryModal = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-white p-6 rounded-t-3xl max-h-[55%]">
+        <View className="bg-white p-6 rounded-t-3xl max-h-[60%]">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-2xl font-bold text-slate-800">
               {initialData ? "Update" : "New"} {type}

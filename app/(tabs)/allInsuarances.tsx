@@ -1,12 +1,12 @@
 import { initDatabase } from "@/util/database";
 import { InsuranceController } from "@/controllers/InsuranceController";
-import { NotificationService } from "@/services/NotificationService";
 
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, FlatList, Alert } from "react-native";
 import { EntryModal } from "@/components/EntryModal";
 import { DisplayItem } from "@/components/items/DisplayItem";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { NotificationService } from "@/services/NotificationService";
 
 export default function Insuarances() {
   const [modalVisible, setModalVisible] = useState(false);
