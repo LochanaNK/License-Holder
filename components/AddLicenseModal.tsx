@@ -4,6 +4,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import {
+  Alert,
   View,
   ScrollView,
   Text,
@@ -64,7 +65,12 @@ export const AddLicenseModal = ({
   };
 
   const handleAdd = async () => {
-    if (!formData.holderName || !formData.vehicleNo) {
+    if (!formData.holderName || !formData.vehicleNo || !formData.expiryDate) {
+      Alert.alert(
+        "Form Error",
+        "Please fill in all fields.",
+        [{text:"OK"}]
+      );
       return;
     }
     onAdd(formData);
