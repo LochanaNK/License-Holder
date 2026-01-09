@@ -33,7 +33,7 @@ export default function Licenses() {
     if (isUpdate) {
       console.log("LOG: Updating existing ID:", id, formData);
 
-      await NotificationService.cancelNotificationsForId(id, "License");
+      await NotificationService.cancelNotificationsForId(id, "Emission");
 
       await EmissionTestController.update(id, formData);
     } else {

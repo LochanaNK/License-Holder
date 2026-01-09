@@ -30,7 +30,7 @@ export default function Insuarances() {
     if (isUpdate) {
       console.log("LOG: Updating existing ID:", id, formData);
 
-      await NotificationService.cancelNotificationsForId(id, "License");
+      await NotificationService.cancelNotificationsForId(id, "Insurance");
 
       await InsuranceController.update(id, formData);
     } else {
