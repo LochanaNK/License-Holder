@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesome6 } from "@expo/vector-icons";
 import DateTimePicker, {
   DateTimePickerEvent,
@@ -16,27 +16,56 @@ import {
 } from "react-native";
 import { Fontisto } from "@expo/vector-icons";
 
+import * as Notifications from 'expo-notifications';
 import { NotificationService } from "@/services/NotificationService";
 
-interface AddLicenseModalProps {
+type EntryType = "License" | "Insurance" | "Emission";
+
+interface EntryModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onAdd: (formData: any) => void;
+  onSave: (formData: any) => void;
+  type: EntryType;
+  initialData?: any;
 }
 
-export const AddLicenseModal = ({
+export const EntryModal = ({
   isVisible,
   onClose,
-  onAdd,
-}: AddLicenseModalProps) => {
+  onSave,
+  initialData,
+  type,
+}: EntryModalProps) => {
   const [showPicker, setShowPicker] = useState(false);
   const [date, setDate] = useState(new Date());
+
+  const [formData, setFormData] = useState({
+    holderName: "",
+    companyName: "",
+    vehicleNo: "",
+    vehicleClass: "",
+    expiryDate: "",
+  });
+  //load initial data for updates
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    } else {
+      setFormData({
+        holderName: "",
+        companyName: "",
+        vehicleNo: "",
+        vehicleClass: "",
+        expiryDate: "",
+      });
+    }
+  }, [initialData, isVisible]);
 
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (Platform.OS === "android") {
       setShowPicker(false);
     }
-
     if (selectedDate) {
       setDate(selectedDate);
 
@@ -50,13 +79,6 @@ export const AddLicenseModal = ({
     }
   };
 
-  const [formData, setFormData] = useState({
-    holderName: "",
-    vehicleNo: "",
-    vehicleClass: "",
-    expiryDate: "",
-  });
-
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -65,27 +87,31 @@ export const AddLicenseModal = ({
   };
 
   const handleAdd = async () => {
-    if (!formData.holderName || !formData.vehicleNo || !formData.expiryDate) {
-      Alert.alert(
-        "Form Error",
-        "Please fill in all fields.",
-        [{text:"OK"}]
-      );
+    const isCommonValid = !!formData.vehicleNo && !!formData.expiryDate;
+
+    if (!isCommonValid) {
+      Alert.alert("Form Error", "Please fill in all fields.", [{ text: "OK" }]);
       return;
     }
-    onAdd(formData);
+    const savedId = await onSave(formData);
 
-    setFormData({
-      holderName: "",
-      vehicleNo: "",
-      vehicleClass: "",
-      expiryDate: "",
-    });
-    await NotificationService.scheduleExpiryNotification(
-      formData.holderName,
-      formData.expiryDate,
-      "License"
-    );
+    const targetId = initialData?.id || savedId;
+
+    //trigger notifications with the specified type
+    if (targetId) {
+      const displayName =
+        type === "Emission" || type === "Insurance"
+          ? formData.companyName
+          : formData.holderName;
+
+      await NotificationService.scheduleExpiryNotification(
+        targetId,
+        displayName,
+        formData.expiryDate,
+        type
+      );
+    }
+
     onClose();
   };
 
@@ -99,7 +125,9 @@ export const AddLicenseModal = ({
       <View className="flex-1 justify-end bg-black/50">
         <View className="bg-white p-6 rounded-t-3xl max-h-[55%]">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-2xl font-bold text-slate-800">New Entry</Text>
+            <Text className="text-2xl font-bold text-slate-800">
+              {initialData ? "Update" : "New"} {type}
+            </Text>
             <TouchableOpacity onPress={onClose}>
               <Fontisto name="close" size={24} color="#dc2626" />
             </TouchableOpacity>
@@ -118,30 +146,53 @@ export const AddLicenseModal = ({
               }}
               keyboardShouldPersistTaps="handled"
             >
-              <TextInput
-                className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                placeholder="License Holder's name"
-                placeholderTextColor={"#1e293b"}
-                value={formData.holderName}
-                onChangeText={(val) => handleChange("holderName", val)}
-                onSubmitEditing={handleAdd}
-              />
+              {/* Common field */}
+
               <TextInput
                 className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
                 placeholder="Vehicle No"
-                placeholderTextColor={"#1e293b"}
+                placeholderTextColor={"#64748b"}
                 value={formData.vehicleNo}
                 onChangeText={(val) => handleChange("vehicleNo", val)}
-                onSubmitEditing={handleAdd}
               />
-              <TextInput
-                className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
-                placeholder="Vehicle Class"
-                placeholderTextColor={"#1e293b"}
-                value={formData.vehicleClass}
-                onChangeText={(val) => handleChange("vehicleClass", val)}
-                onSubmitEditing={handleAdd}
-              />
+
+              {/*Conditional*/}
+
+              {(type === "License" || type === "Insurance") && (
+                <TextInput
+                  className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
+                  placeholder={`${type} Holder's Name`}
+                  placeholderTextColor={"#64748b"}
+                  value={formData.holderName}
+                  onChangeText={(val) => handleChange("holderName", val)}
+                />
+              )}
+
+              {(type === "Insurance" || type === "Emission") && (
+                <TextInput
+                  className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
+                  placeholder={
+                    type === "Insurance"
+                      ? "Insurance Company Name"
+                      : "Testing Center Name"
+                  }
+                  placeholderTextColor={"#64748b"}
+                  value={formData.companyName}
+                  onChangeText={(val) => handleChange("companyName", val)}
+                />
+              )}
+
+              {(type === "Emission" || type === "License") && (
+                <TextInput
+                  className="bg-slate-100 p-4 rounded-2xl text-lg border border-slate-200 mb-3"
+                  placeholder="Vehicle Class"
+                  placeholderTextColor={"#64748b"}
+                  value={formData.vehicleClass}
+                  onChangeText={(val) => handleChange("vehicleClass", val)}
+                />
+              )}
+
+              {/* Common Date Picker */}
 
               <Text className="text-slate-500 mb-1 ml-1">Expiration Date</Text>
               <TouchableOpacity
@@ -167,7 +218,9 @@ export const AddLicenseModal = ({
               onPress={handleAdd}
               className="bg-sky-500 p-4 rounded-2xl items-center mb-4"
             >
-              <Text className="text-white text-lg font-bold">Add Entry</Text>
+              <Text className="text-white text-lg font-bold">
+                {initialData ? "Save Changes" : "Add Entry"}
+              </Text>
             </TouchableOpacity>
           </KeyboardAvoidingView>
         </View>

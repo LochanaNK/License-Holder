@@ -19,6 +19,14 @@ export const initDatabase = ()=>{
                 vehicleNo TEXT,
                 expiryDate TEXT
             );
+
+            CREATE TABLE IF NOT EXISTS emissionTest(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                companyName TEXT NOT NULL,
+                vehicleNo TEXT,
+                vehicleClass TEXT,
+                expiryDate TEXT
+            )
         `);
 };
 

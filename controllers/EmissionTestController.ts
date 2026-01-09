@@ -1,9 +1,9 @@
 import { database } from '../util/database';
 
-export const LicenseController = {
+export const EmissionTestController = {
     getAll: () => {
         try {
-            return database.getAllSync('SELECT * FROM licenses ORDER BY id DESC');
+            return database.getAllSync('SELECT * FROM emissionTest ORDER BY id DESC');
         } catch (error) {
             console.error("Failed to fetch licenses", error);
             return [];
@@ -13,10 +13,9 @@ export const LicenseController = {
     create: (data: any): number | null => {
         try {
             const result = database.runSync(
-                'INSERT INTO licenses (holderName,vehicleNo,vehicleClass,expiryDate) VALUES(?,?,?,?)',
-                [data.holderName, data.vehicleNo, data.vehicleClass, data.expiryDate]
+                'INSERT INTO emissionTest (companyName,vehicleNo,vehicleClass,expiryDate) VALUES(?,?,?,?)',
+                [data.companyName, data.vehicleNo, data.vehicleClass, data.expiryDate]
             );
-            console.log("Database Insert Success, ID:", result.lastInsertRowId);
             return result.lastInsertRowId;
         } catch (error) {
             console.error('Failed to create license:', error);
@@ -26,14 +25,14 @@ export const LicenseController = {
 
     update: (id: number, data: any) => {
         return database.runSync(
-            'UPDATE licenses SET holderName = ?,vehicleNo = ?,vehicleClass = ?,expiryDate = ? WHERE id = ?',
-            [data.holderName, data.vehicleNo, data.vehicleClass, data.expiryDate, id]
+            'UPDATE emissionTest SET companyName = ?,vehicleNo = ?,vehicleClass = ?,expiryDate = ? WHERE id = ?',
+            [data.companyName, data.vehicleNo, data.vehicleClass, data.expiryDate, id]
         );
 
     },
     remove: (id: number) => {
         try {
-            database.runSync('DELETE FROM licenses WHERE id = ?', [id]);
+            database.runSync('DELETE FROM emissionTest WHERE id = ?', [id]);
             return true;
         } catch (error) {
             console.error('Failed to delete license:', error);
