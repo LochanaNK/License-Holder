@@ -1,3 +1,4 @@
+import Toast from 'react-native-root-toast';
 import { initDatabase } from "@/util/database";
 import { LicenseController } from "@/controllers/LicenseController";
 
@@ -36,9 +37,13 @@ export default function Licenses() {
 
       await LicenseController.update(id, formData);
       
+      Toast.show('Entry Updated Successfully!',{duration:Toast.durations.SHORT});
+      
     } else {
       console.log("LOG: Creating brand new entry",formData);
       id =await LicenseController.create(formData);
+
+      Toast.show('New Entry Added!',{duration:Toast.durations.SHORT});
     }
     loadData();
     setModalVisible(false);

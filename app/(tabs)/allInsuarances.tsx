@@ -1,3 +1,4 @@
+import Toast from 'react-native-root-toast';
 import { initDatabase } from "@/util/database";
 import { InsuranceController } from "@/controllers/InsuranceController";
 
@@ -33,9 +34,15 @@ export default function Insuarances() {
       await NotificationService.cancelNotificationsForId(id, "Insurance");
 
       await InsuranceController.update(id, formData);
+
+      Toast.show('Entry Updated Successfully',{duration:Toast.durations.SHORT});
+
     } else {
       console.log("LOG: Creating brand new entry", formData);
       id = await InsuranceController.create(formData);
+
+      Toast.show('Entry Updated Successfully',{duration:Toast.durations.SHORT});
+      
     }
     loadData();
     setSelectedInsurance(null);

@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications";
 
+import { RootSiblingParent } from "react-native-root-siblings";
 import { Stack } from "expo-router";
 import "../global.css";
 
@@ -14,8 +15,10 @@ Notifications.setNotificationHandler({
 
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    <RootSiblingParent>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </RootSiblingParent>
   );
 }

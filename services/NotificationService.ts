@@ -40,9 +40,8 @@ export const NotificationService = {
     },
 
     scheduleExpiryNotification: async (id: number, name: string, expiryDateString: string, type: EntryType) => {
-        const expiryDate = new Date(`${expiryDateString}T09:00:00`);
-        const now = new Date();
 
+        const now = new Date();
         const notifyDaysBefore = [5, 1];
 
 
@@ -54,30 +53,37 @@ export const NotificationService = {
             //cancels the old notification if it still exists
             await Notifications.cancelScheduledNotificationAsync(notificationId);
 
-            const triggerDate = new Date(expiryDate.getTime() - (days * 24 * 60 * 60 * 1000));
+            const [year, month, day] = expiryDateString.split('-').map(Number);
+            let triggerDate = new Date(year, month - 1, day, 9, 0, 0);
+            triggerDate.setDate(triggerDate.getDate() - days);
 
-            const icon = type === 'License' ? '🛡️' : '📄';
+
             console.log(`Checking ${days}-day alert for ${name}. Calculated trigger: ${triggerDate.toLocaleString()}`);
-            if (triggerDate > now) {
-                await Notifications.scheduleNotificationAsync({
-                    identifier: notificationId,
-                    content: {
-                        title: `⚠️ ${type} Expiring Soon`,
-                        body: `${name}'s ${type.toLowerCase()} expires in ${days} day${days > 1 ? 's' : ''}!`,
-                        data: { type, name },
-                    },
-                    trigger: {
-                        type:Notifications.SchedulableTriggerInputTypes.DATE,
-                        date: triggerDate,
-                        channelId: 'license-alerts',
-                    } as Notifications.DateTriggerInput, // Pass the Date object as the trigger
-                });
-                console.log(`Scheduled ${days}-day alert for ${triggerDate.toLocaleString()}`);
-            } else {
-                console.log(`Skipped ${days}-day alert for ${name} (date is in the past)`);
+            if (triggerDate <= now) {
+                const actualExpiry = new Date(year, month - 1, day, 23, 59, 59);
+                if (actualExpiry > now) {
+                    triggerDate = new Date(Date.now() + 5000);
+                    console.log(`LOG: 9AM passed for ${days}-day alert. Triggering INSTANTLY`);
+                } else {
+                    console.log(`LOG: ${days}-day alert skipped (Expiry is in the past).`);
+                    continue;
+                }
             }
 
+            await Notifications.scheduleNotificationAsync({
+                identifier: notificationId,
+                content: {
+                    title: `⚠️ ${type} Expiring Soon`,
+                    body: `${name}'s ${type.toLowerCase()} expires in ${days} day${days > 1 ? 's' : ''}!`,
+                },
+                trigger: {
+                    type: Notifications.SchedulableTriggerInputTypes.DATE,
+                    date: triggerDate,
+                },
+            });
+            console.log(`LOG: Scheduled ${days}-day alert for: ${triggerDate.toLocaleString()}`);
         }
+
     },
 
     cancelNotificationsForId: async (id: number, type: EntryType) => {
