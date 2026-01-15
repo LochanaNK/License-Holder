@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "603708166091",
+    "project_id": "license-holder",
+    "storage_bucket": "license-holder.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:603708166091:android:2f908c353ff956e6c8f04e",
+        "android_client_info": {
+          "package_name": "com.LochanaNK.LicenseHolder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDs4elJS7H11IcjU2rIKAlxW4WvM9WAAT4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
