@@ -1,4 +1,4 @@
-import Toast from 'react-native-root-toast';
+import Toast from "react-native-root-toast";
 import { initDatabase } from "@/util/database";
 import { InsuranceController } from "@/controllers/InsuranceController";
 
@@ -28,26 +28,36 @@ export default function Insuarances() {
     const isUpdate = !!formData.id;
     let id = formData.id;
 
-    if (isUpdate) {
-      console.log("LOG: Updating existing ID:", id, formData);
+    try {
+      if (isUpdate) {
+        console.log("LOG: Updating existing ID:", id, formData);
 
-      await NotificationService.cancelNotificationsForId(id, "Insurance");
+        await NotificationService.cancelNotificationsForId(id, "Insurance");
 
-      await InsuranceController.update(id, formData);
+        await InsuranceController.update(id, formData);
 
-      Toast.show('Entry Updated Successfully',{duration:Toast.durations.SHORT});
+        Toast.show("Entry Updated Successfully!", {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.BOTTOM,
+          backgroundColor: "#0ea5e9",
+        });
+      } else {
+        console.log("LOG: Creating brand new entry", formData);
+        id = await InsuranceController.create(formData);
 
-    } else {
-      console.log("LOG: Creating brand new entry", formData);
-      id = await InsuranceController.create(formData);
-
-      Toast.show('Entry Updated Successfully',{duration:Toast.durations.SHORT});
-      
+        Toast.show("New Entry Added!", {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.BOTTOM,
+          backgroundColor: "#10b981",
+        });
+      }
+      loadData();
+      setSelectedInsurance(null);
+      setModalVisible(false);
+      return id;
+    } catch (error) {
+      Toast.show("Save Failed", { backgroundColor: "#ef4444" });
     }
-    loadData();
-    setSelectedInsurance(null);
-    setModalVisible(false);
-    return id;
   };
 
   const handleDelete = (id: number) => {

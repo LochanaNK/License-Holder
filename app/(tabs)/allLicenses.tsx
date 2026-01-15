@@ -30,25 +30,37 @@ export default function Licenses() {
     const isUpdate = !!formData.id;
     let id = formData.id;
 
-    if (isUpdate) {
+    try{
+      if (isUpdate) {
       console.log("LOG: Updating existing ID:", id,formData);
 
       await NotificationService.cancelNotificationsForId(id,'License');
 
       await LicenseController.update(id, formData);
       
-      Toast.show('Entry Updated Successfully!',{duration:Toast.durations.SHORT});
+      Toast.show('Entry Updated Successfully!', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+        backgroundColor: '#0ea5e9',
+      });
       
     } else {
       console.log("LOG: Creating brand new entry",formData);
       id =await LicenseController.create(formData);
 
-      Toast.show('New Entry Added!',{duration:Toast.durations.SHORT});
+      Toast.show('New Entry Added!', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+        backgroundColor: '#10b981',
+      });
     }
     loadData();
     setModalVisible(false);
     setSelectedLicense(null);
     return id;
+    }catch(error){
+      Toast.show('Save Failed',{backgroundColor:'#ef4444'});
+    }
   };
   const handleDelete = (id: number) => {
     Alert.alert("Delete", "Are you sure?", [
